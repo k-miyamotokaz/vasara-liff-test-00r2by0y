@@ -853,8 +853,16 @@ function dumpDebug(){
 }
 
 (function init(){
-  var fromQuery = new URLSearchParams(location.search).get("liffId");
+  var params = new URLSearchParams(location.search);
+  var fromQuery = params.get("liffId");
   var id = fromQuery || LIFF_ID;
+
+  // ?mock=1 を付けると、LINE連携せずブラウザで画面だけ確認できます
+  if(params.get("mock") === "1"){
+    liffCtx.mode = "mock"; liffCtx.error = "?mock=1 指定";
+    setStatus("mock", "モックモード：画面確認用（LINE連携なし）");
+    dumpDebug(); render(); return;
+  }
 
   if(!id || id === "PASTE_YOUR_LIFF_ID_HERE"){
     liffCtx.mode = "mock"; liffCtx.error = "LIFF ID が未設定";
