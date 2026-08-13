@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<title>VASARA ご登録 ─ STEP3 LIFF テスト</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+:root{
+  --ai:#26436E; --ai-d:#1b3252; --ai-l:#eaeef5;
+  --su:#9C3F52; --kin:#B08529; --kin-l:#fbf4e4;
+  --ink:#1a1c1f; --ink2:#4a4f57; --ink3:#828892;
+  --line:#e2e3e7; --bg:#f7f5f0; --card:#fff;
+  --ok:#1f6f63; --err:#b3392a; --err-l:#fdeeeb;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+  font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased;
+  padding-bottom:96px;
+}
+.shell{max-width:560px;margin:0 auto;background:var(--card);min-height:100vh;
+  box-shadow:0 0 0 1px var(--line)}
+
+/* header */
+.hd{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line);
+    padding:12px 18px 0}
+.hd-row{display:flex;align-items:center;gap:10px}
+.hd-t{font-size:14px;font-weight:700;letter-spacing:.02em}
+.hd-s{font-size:11px;color:var(--ink3);margin-left:auto;font-variant-numeric:tabular-nums}
+.pb{height:3px;background:#eceef1;border-radius:2px;margin:10px 0 0;overflow:hidden}
+.pb i{display:block;height:100%;background:var(--ai);border-radius:2px;transition:width .3s ease}
+.steps{display:flex;gap:3px;padding:8px 0 10px;overflow-x:auto;scrollbar-width:none}
+.steps::-webkit-scrollbar{display:none}
+.sd{font-size:10.5px;font-weight:700;color:var(--ink3);white-space:nowrap;
+    padding:3px 9px;border-radius:11px;background:#f3f3f1;flex:none}
+.sd.on{background:var(--ai);color:#fff}
+.sd.done{background:var(--ai-l);color:var(--ai)}
+
+/* pages */
+.pg{display:none;padding:20px 18px 8px}
+.pg.on{display:block}
+h1{font-size:21px;margin:0 0 6px;font-weight:700;line-height:1.4}
+.lead{font-size:13.5px;color:var(--ink2);margin:0 0 20px}
+h2{font-size:15px;margin:24px 0 10px;font-weight:700;display:flex;align-items:center;gap:8px}
+h2 .bar{width:3px;height:15px;background:var(--ai);border-radius:2px;flex:none}
+h2:first-of-type{margin-top:4px}
+
+/* fields */
+.f{margin-bottom:16px}
+.f label{display:block;font-size:12.5px;font-weight:700;color:var(--ink2);margin-bottom:5px}
+.req{color:var(--su);font-size:11px;margin-left:4px;font-weight:700}
+.opt{color:var(--ink3);font-size:11px;margin-left:4px;font-weight:600}
+.hint{font-size:11.5px;color:var(--ink3);margin-top:4px;line-height:1.5}
+input[type=text],input[type=tel],input[type=email],input[type=date],input[type=number],select,textarea{
+  width:100%;font-size:16px;font-family:inherit;padding:11px 12px;border:1px solid #cfd2d8;
+  border-radius:8px;background:#fff;color:var(--ink);appearance:none;line-height:1.4}
+select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' fill='none' stroke='%234a4f57' stroke-width='1.6'/></svg>");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:34px}
+textarea{min-height:88px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ai);box-shadow:0 0 0 3px rgba(38,67,110,.11)}
+input.bad,select.bad{border-color:var(--err);background:var(--err-l)}
+.row{display:flex;gap:10px}
+.row>*{flex:1;min-width:0}
+.emsg{font-size:11.5px;color:var(--err);margin-top:4px;font-weight:600;display:none}
+.emsg.on{display:block}
+
+/* chips select */
+.cw{display:flex;flex-wrap:wrap;gap:7px}
+.cw input{position:absolute;opacity:0;width:0;height:0}
+.cw label{display:inline-block;font-size:13.5px;font-weight:600;color:var(--ink2);margin:0;
+  border:1px solid #cfd2d8;background:#fff;border-radius:18px;padding:7px 14px;cursor:pointer}
+.cw input:checked+label{background:var(--ai);border-color:var(--ai);color:#fff}
+
+/* consent */
+.cs{border:1px solid var(--line);border-radius:9px;padding:13px 14px;margin-bottom:10px;background:#fcfcfa}
+.cs.need{border-left:3px solid var(--su)}
+.cs-t{font-size:13.5px;font-weight:700;margin-bottom:5px}
+.cs-b{font-size:12.5px;color:var(--ink2);margin-bottom:9px}
+.ck{display:flex;align-items:flex-start;gap:9px;cursor:pointer}
+.ck input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:var(--ai)}
+.ck span{font-size:13.5px;font-weight:700;color:var(--ink)}
+
+/* wearer cards */
+.w{border:1px solid var(--line);border-radius:10px;margin-bottom:12px;overflow:hidden;background:#fff}
+.w-h{display:flex;align-items:center;gap:9px;padding:10px 13px;background:var(--ai-l);border-bottom:1px solid var(--line)}
+.w-n{font-size:11.5px;font-weight:700;color:#fff;background:var(--ai);border-radius:4px;padding:2px 8px}
+.w-t{font-size:13.5px;font-weight:700;color:var(--ai)}
+.w-x{margin-left:auto;background:none;border:none;color:var(--su);font-size:12px;font-weight:700;
+     cursor:pointer;padding:4px 6px}
+.w-b{padding:14px 13px}
+.addw{width:100%;padding:12px;border:1.5px dashed #b9bdc5;background:#fafaf8;border-radius:9px;
+  font-size:14px;font-weight:700;color:var(--ai);cursor:pointer;font-family:inherit}
+.le{margin-top:11px;background:var(--kin-l);border-left:3px solid var(--kin);border-radius:0 7px 7px 0;
+    padding:10px 12px;font-size:12.5px;color:#6f5514;display:none}
+.le.on{display:block}
+.le b{display:block;font-size:11.5px;letter-spacing:.03em;margin-bottom:4px;color:#8a6a1e}
+.le ul{margin:0;padding-left:16px}
+.le li{margin-bottom:2px}
+
+/* confirm */
+.cf{border:1px solid var(--line);border-radius:9px;overflow:hidden;margin-bottom:14px}
+.cf-h{background:#f3f3f1;padding:8px 13px;font-size:12px;font-weight:700;color:var(--ink2)}
+.cf dl{margin:0;padding:4px 13px 10px}
+.cf dt{font-size:11px;color:var(--ink3);font-weight:700;margin-top:9px}
+.cf dd{margin:0;font-size:14px;font-weight:600;word-break:break-all}
+.cf dd.empty{color:var(--ink3);font-weight:400}
+
+/* nav */
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:rgba(255,255,255,.96);
+  backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:11px 16px calc(11px + env(safe-area-inset-bottom))}
+.nav-in{max-width:560px;margin:0 auto;display:flex;gap:10px}
+button.b{font-family:inherit;font-size:15.5px;font-weight:700;border-radius:9px;padding:13px 18px;
+  border:none;cursor:pointer;flex:1}
+button.b.prime{background:var(--ai);color:#fff}
+button.b.prime:disabled{background:#b6bcc7;cursor:not-allowed}
+button.b.ghost{background:#fff;color:var(--ink2);border:1px solid #cfd2d8;flex:0 0 96px}
+
+/* status / debug */
+.st{margin:0;padding:9px 18px;font-size:11.5px;font-weight:700;display:flex;align-items:center;gap:7px;
+    border-bottom:1px solid var(--line)}
+.st.line{background:#eaf6ef;color:#186b3d}
+.st.mock{background:var(--kin-l);color:#7d5c14}
+.st.err{background:var(--err-l);color:var(--err)}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+details.dbg{margin:14px 18px 0;border:1px solid var(--line);border-radius:8px;background:#fafaf8}
+details.dbg summary{padding:9px 13px;font-size:12px;font-weight:700;color:var(--ink2);cursor:pointer}
+details.dbg pre{margin:0;padding:0 13px 13px;font-size:11px;line-height:1.6;white-space:pre-wrap;
+  word-break:break-all;color:var(--ink2);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.warn{margin:0 18px 16px;background:var(--kin-l);border:1px solid #ead6a6;border-radius:8px;
+  padding:11px 13px;font-size:12.5px;color:#6f5514;font-weight:600}
+.done-box{text-align:center;padding:30px 10px}
+.done-box .ic{width:60px;height:60px;border-radius:50%;background:var(--ai);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 16px}
+pre.out{background:#1f2430;color:#dfe4ee;border-radius:9px;padding:13px;font-size:11px;
+  line-height:1.6;overflow-x:auto;white-space:pre;margin:14px 0 0;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="hd">
+    <div class="hd-row">
+      <span class="hd-t">VASARA ご登録</span>
+      <span class="hd-s" id="stepno">1 / 7</span>
+    </div>
+    <div class="pb"><i id="pbar" style="width:14%"></i></div>
+    <div class="steps" id="stepdots"></div>
+  </div>
+
+  <div class="st" id="status"><span class="dot"></span><span id="statusText">初期化中…</span></div>
+
+  <!-- ============ P1 ようこそ ============ -->
+  <section class="pg on" data-pg="0">
+    <h1>ご来店ありがとうございます</h1>
+    <p class="lead">お着物のご準備のため、いくつかご入力をお願いします。3分ほどで終わります。<br>
+    入力内容は次回以降のご来店でも引き継がれますので、2回目からは確認だけで済みます。</p>
+
+    <div class="cs">
+      <div class="cs-t">ご入力いただく内容</div>
+      <div class="cs-b">
+        ① お客様のお名前・ご連絡先<br>
+        ② ご利用のご予定（式典の日時・会場）<br>
+        ③ お召しになる方のご情報<br>
+        ④ ご希望のお着物のイメージ<br>
+        ⑤ 個人情報のお取り扱いについての同意
+      </div>
+    </div>
+
+    <div class="cs need">
+      <div class="cs-t">お身体のことについて</div>
+      <div class="cs-b">帯を締める際の配慮が必要なご事情（妊娠中・お怪我など）は、<b>この画面には入力せず</b>、担当スタッフに直接お伝えください。記録には残しません。</div>
+    </div>
+  </section>
+
+  <!-- ============ P2 代表者 ============ -->
+  <section class="pg" data-pg="1">
+    <h1>ご代表者さまの情報</h1>
+    <p class="lead">お手続きの代表となる方をご入力ください。</p>
+
+    <div class="f">
+      <label>お名前（漢字）<span class="req">必須</span></label>
+      <div class="row">
+        <div><input type="text" id="lastName" placeholder="姓　例：山田" autocomplete="family-name"></div>
+        <div><input type="text" id="firstName" placeholder="名　例：花子" autocomplete="given-name"></div>
+      </div>
+      <div class="emsg" id="e_name">お名前をご入力ください</div>
+    </div>
+
+    <div class="f">
+      <label>お名前（カナ）<span class="req">必須</span></label>
+      <div class="row">
+        <div><input type="text" id="lastKana" placeholder="セイ　例：ヤマダ"></div>
+        <div><input type="text" id="firstKana" placeholder="メイ　例：ハナコ"></div>
+      </div>
+      <div class="emsg" id="e_kana">全角カタカナでご入力ください</div>
+    </div>
+
+    <div class="f">
+      <label>生年月日<span class="req">必須</span></label>
+      <input type="date" id="birth" max="2026-12-31">
+      <div class="emsg" id="e_birth">生年月日をご入力ください</div>
+    </div>
+
+    <div class="f">
+      <label>郵便番号<span class="req">必須</span></label>
+      <input type="tel" id="zip" placeholder="1000001" maxlength="8" inputmode="numeric" autocomplete="postal-code">
+      <div class="hint">7桁を入力すると住所が自動で入ります</div>
+      <div class="emsg" id="e_zip">郵便番号をご入力ください</div>
+    </div>
+
+    <div class="f">
+      <label>ご住所<span class="req">必須</span></label>
+      <input type="text" id="addr1" placeholder="都道府県・市区町村" autocomplete="address-level1" style="margin-bottom:8px">
+      <input type="text" id="addr2" placeholder="番地・建物名・部屋番号" autocomplete="address-line2">
+      <div class="emsg" id="e_addr">ご住所をご入力ください</div>
+    </div>
+
+    <h2><span class="bar"></span>ご連絡先の確認</h2>
+    <p class="lead" style="margin-bottom:14px">ご予約時にお伺いした内容です。お間違いがあればこの場でご修正ください。</p>
+
+    <div class="f">
+      <label>携帯電話番号<span class="req">必須</span></label>
+      <input type="tel" id="tel" placeholder="09012345678" inputmode="numeric" autocomplete="tel">
+      <div class="emsg" id="e_tel">携帯電話番号をご入力ください</div>
+    </div>
+
+    <div class="f">
+      <label>メールアドレス<span class="req">必須</span></label>
+      <input type="email" id="mail" placeholder="example@vasara.jp" inputmode="email" autocomplete="email">
+      <div class="hint">お電話でのご予約時は聞き間違いが起こりやすいため、必ずご確認をお願いします</div>
+      <div class="emsg" id="e_mail">メールアドレスの形式をご確認ください</div>
+    </div>
+  </section>
+
+  <!-- ============ P3 ご利用シーン ============ -->
+  <section class="pg" data-pg="2">
+    <h1>ご利用のご予定</h1>
+    <p class="lead">お着付けの開始時刻を逆算するために使用します。</p>
+
+    <div class="f">
+      <label>ご利用シーン<span class="req">必須</span></label>
+      <div class="cw" id="sceneWrap">
+        <input type="radio" name="scene" id="sc1" value="七五三"><label for="sc1">七五三</label>
+        <input type="radio" name="scene" id="sc2" value="お宮参り"><label for="sc2">お宮参り</label>
+        <input type="radio" name="scene" id="sc3" value="入学式"><label for="sc3">入学式</label>
+        <input type="radio" name="scene" id="sc4" value="卒業式"><label for="sc4">卒業式</label>
+        <input type="radio" name="scene" id="sc5" value="成人式"><label for="sc5">成人式</label>
+        <input type="radio" name="scene" id="sc6" value="婚礼参列"><label for="sc6">結婚式に参列</label>
+        <input type="radio" name="scene" id="sc7" value="法事"><label for="sc7">法事</label>
+        <input type="radio" name="scene" id="sc8" value="その他"><label for="sc8">その他</label>
+      </div>
+      <div class="emsg" id="e_scene">ご利用シーンをお選びください</div>
+    </div>
+
+    <div class="f">
+      <label>式典・お式の日<span class="req">必須</span></label>
+      <input type="date" id="evDate" min="2026-08-13">
+      <div class="emsg" id="e_evDate">日付をご入力ください</div>
+    </div>
+
+    <div class="f">
+      <label>開始時刻<span class="req">必須</span></label>
+      <input type="text" id="evTime" placeholder="10:30" inputmode="numeric" maxlength="5">
+      <div class="hint">お着付けの開始時刻を逆算するために使います</div>
+      <div class="emsg" id="e_evTime">開始時刻をご入力ください（例 10:30）</div>
+    </div>
+
+    <div class="f">
+      <label>会場名<span class="opt">任意</span></label>
+      <input type="text" id="venue" placeholder="例：明治神宮">
+    </div>
+
+    <div class="f">
+      <label>会場までの移動手段<span class="opt">任意</span></label>
+      <select id="transit">
+        <option value="">選択してください</option>
+        <option>電車</option><option>お車</option><option>タクシー</option>
+        <option>徒歩</option><option>未定</option>
+      </select>
+      <div class="hint">草履や着付けの締め具合のご相談に使わせていただきます</div>
+    </div>
+  </section>
+
+  <!-- ============ P4 着用者 ============ -->
+  <section class="pg" data-pg="3">
+    <h1>お召しになる方</h1>
+    <p class="lead">ご代表者さまご自身がお召しになる場合も、1件としてご登録ください。<br>
+    この場でお分かりにならない方は、後からLINEで追加していただけます。</p>
+    <div id="wearers"></div>
+    <button type="button" class="addw" id="addWearer">＋ お召しになる方を追加</button>
+    <div class="emsg" id="e_wearer" style="margin-top:10px">お一人以上のご登録が必要です</div>
+  </section>
+
+  <!-- ============ P5 ご希望 ============ -->
+  <section class="pg" data-pg="4">
+    <h1>ご希望のイメージ</h1>
+    <p class="lead">すべて任意です。決まっていなければ空欄のままで大丈夫です。</p>
+
+    <div class="f">
+      <label>お色のイメージ<span class="opt">任意・複数可</span></label>
+      <div class="cw">
+        <input type="checkbox" name="color" id="c1" value="赤・朱"><label for="c1">赤・朱</label>
+        <input type="checkbox" name="color" id="c2" value="ピンク"><label for="c2">ピンク</label>
+        <input type="checkbox" name="color" id="c3" value="紺・青"><label for="c3">紺・青</label>
+        <input type="checkbox" name="color" id="c4" value="緑"><label for="c4">緑</label>
+        <input type="checkbox" name="color" id="c5" value="黄・金"><label for="c5">黄・金</label>
+        <input type="checkbox" name="color" id="c6" value="紫"><label for="c6">紫</label>
+        <input type="checkbox" name="color" id="c7" value="白・生成り"><label for="c7">白・生成り</label>
+        <input type="checkbox" name="color" id="c8" value="黒"><label for="c8">黒</label>
+      </div>
+    </div>
+
+    <div class="f">
+      <label>お好みのテイスト<span class="opt">任意</span></label>
+      <div class="cw">
+        <input type="radio" name="taste" id="t1" value="古典的・王道"><label for="t1">古典的・王道</label>
+        <input type="radio" name="taste" id="t2" value="モダン・レトロ"><label for="t2">モダン・レトロ</label>
+        <input type="radio" name="taste" id="t3" value="かわいい系"><label for="t3">かわいい系</label>
+        <input type="radio" name="taste" id="t4" value="上品・落ち着き"><label for="t4">上品・落ち着き</label>
+        <input type="radio" name="taste" id="t5" value="おまかせ"><label for="t5">おまかせ</label>
+      </div>
+    </div>
+
+    <div class="f">
+      <label>ヘアメイクのご希望<span class="opt">任意</span></label>
+      <div class="cw">
+        <input type="radio" name="hair" id="h1" value="希望する"><label for="h1">希望する</label>
+        <input type="radio" name="hair" id="h2" value="希望しない"><label for="h2">希望しない</label>
+        <input type="radio" name="hair" id="h3" value="相談したい"><label for="h3">相談したい</label>
+      </div>
+    </div>
+
+    <div class="f">
+      <label>お持ち込みになるもの<span class="opt">任意・複数可</span></label>
+      <div class="cw">
+        <input type="checkbox" name="bring" id="b1" value="着物"><label for="b1">着物</label>
+        <input type="checkbox" name="bring" id="b2" value="帯"><label for="b2">帯</label>
+        <input type="checkbox" name="bring" id="b3" value="小物"><label for="b3">小物</label>
+        <input type="checkbox" name="bring" id="b4" value="草履・バッグ"><label for="b4">草履・バッグ</label>
+        <input type="checkbox" name="bring" id="b5" value="なし"><label for="b5">なし</label>
+      </div>
+    </div>
+
+    <div class="f">
+      <label>ご要望・ご質問<span class="opt">任意</span></label>
+      <textarea id="memo" placeholder="例：祖母の着物を仕立て直して着せたいです"></textarea>
+    </div>
+  </section>
+
+  <!-- ============ P6 同意 ============ -->
+  <section class="pg" data-pg="5">
+    <h1>個人情報のお取り扱い</h1>
+    <p class="lead">ご入力いただいた情報の使い道について、ご確認とご同意をお願いします。</p>
+
+    <div class="cs need">
+      <div class="cs-t">① ご利用目的への同意</div>
+      <div class="cs-b">お着物のご準備、お着付け、ご連絡、ご請求のために利用します。</div>
+      <label class="ck"><input type="checkbox" id="ag1"><span>同意します</span></label>
+    </div>
+
+    <div class="cs need">
+      <div class="cs-t">② 今後のご案内について</div>
+      <div class="cs-b">七五三・入学式・卒業式・成人式など、<b>数年先のご機会に合わせたご案内</b>をお送りするために、お子様の生年月日を含む情報を保管します。配信は後からいつでも停止・頻度変更ができます。</div>
+      <label class="ck"><input type="checkbox" id="ag2"><span>同意します</span></label>
+    </div>
+
+    <div class="cs need" id="ag3box">
+      <div class="cs-t">③ ご同行の方の情報について</div>
+      <div class="cs-b">ご代表者さまが、ご自身以外の成人の方の情報を入力される場合は、<b>あらかじめご本人の了解を得ていること</b>をご確認ください。</div>
+      <label class="ck"><input type="checkbox" id="ag3"><span>了解を得ています（該当しない場合もチェック）</span></label>
+    </div>
+
+    <div class="cs">
+      <div class="cs-t">④ お写真の掲載について<span class="opt">任意</span></div>
+      <div class="cs-b">店頭でお撮りしたお写真を、当社のSNS・ウェブサイトに掲載させていただく場合があります。</div>
+      <label class="ck"><input type="checkbox" id="ag4"><span>掲載を許可します（任意）</span></label>
+    </div>
+
+    <div class="emsg" id="e_agree">①②③のご同意が必要です</div>
+  </section>
+
+  <!-- ============ P7 確認 ============ -->
+  <section class="pg" data-pg="6">
+    <h1>ご入力内容の確認</h1>
+    <p class="lead">お間違いがなければ、いちばん下の「この内容で登録する」を押してください。</p>
+    <div id="confirm"></div>
+  </section>
+
+  <!-- ============ 完了 ============ -->
+  <section class="pg" data-pg="7">
+    <div class="done-box">
+      <div class="ic">✓</div>
+      <h1 style="text-align:center">ご登録ありがとうございました</h1>
+      <p class="lead" style="text-align:center">担当スタッフがお伺いします。<br>この画面は閉じていただいて大丈夫です。</p>
+    </div>
+    <div class="warn">これはテスト版です。入力内容はどこにも送信されず、この画面を閉じると消えます。<br>
+    以下は、本番でサーバーに送る予定のデータ形（開発確認用）です。</div>
+    <pre class="out" id="payload"></pre>
+    <div style="padding:0 0 10px"><button type="button" class="b ghost" id="copyBtn" style="flex:none;width:100%">JSONをコピー</button></div>
+  </section>
+
+  <details class="dbg">
+    <summary>開発者向け情報（LIFF 動作確認）</summary>
+    <pre id="dbg">—</pre>
+  </details>
+
+  <div style="height:20px"></div>
+</div>
+
+<div class="nav"><div class="nav-in">
+  <button type="button" class="b ghost" id="prevBtn" style="display:none">戻る</button>
+  <button type="button" class="b prime" id="nextBtn">はじめる</button>
+</div></div>
+
+<script>
+/* =========================================================================
+   VASARA STEP3 LIFF テスト版
+   -------------------------------------------------------------------------
+   ▼ここだけ書き換えてください：LINE Developers で発行された LIFF ID
+     （LIFF ID はクライアントに埋め込む公開値です。チャネルシークレットや
+       アクセストークンは絶対にここに書かないでください）
+     URL に ?liffId=xxxxxxxx-yyyyyyyy を付けても指定できます。
+   ========================================================================= */
+var LIFF_ID = "PASTE_YOUR_LIFF_ID_HERE";
+
+/* ---------------- state ---------------- */
+var PAGES = 8;                 // 0..6 = 入力, 7 = 完了
+var LABELS = ["ご案内","ご代表者","ご予定","お召しになる方","ご希望","同意","確認"];
+var page = 0;
+var wearerSeq = 0;
+var liffCtx = { mode:"mock", inClient:false, os:"-", version:"-", loggedIn:false,
+                displayName:null, userId:null, idTokenObtained:false, error:null };
+
+var $ = function(id){ return document.getElementById(id); };
+var qs = function(s,r){ return (r||document).querySelector(s); };
+var qsa = function(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+
+/* ---------------- step dots ---------------- */
+(function(){
+  var w = $("stepdots");
+  LABELS.forEach(function(t,i){
+    var d = document.createElement("span");
+    d.className = "sd"; d.textContent = t; d.dataset.i = i;
+    w.appendChild(d);
+  });
+})();
+
+function render(){
+  qsa(".pg").forEach(function(p){ p.classList.toggle("on", Number(p.dataset.pg)===page); });
+  qsa(".sd").forEach(function(d){
+    var i = Number(d.dataset.i);
+    d.classList.toggle("on", i===page);
+    d.classList.toggle("done", i<page);
+  });
+  var shown = Math.min(page+1, 7);
+  $("stepno").textContent = page>=7 ? "完了" : (shown + " / 7");
+  $("pbar").style.width = (page>=7 ? 100 : Math.round((page+1)/7*100)) + "%";
+
+  $("prevBtn").style.display = (page===0 || page>=7) ? "none" : "block";
+  var nb = $("nextBtn");
+  if(page===0){ nb.textContent = "はじめる"; nb.style.display="block"; }
+  else if(page===6){ nb.textContent = "この内容で登録する"; nb.style.display="block"; }
+  else if(page===7){ nb.textContent = "閉じる"; nb.style.display="block"; }
+  else { nb.textContent = "次へ"; nb.style.display="block"; }
+
+  window.scrollTo(0,0);
+  var el = qs(".sd.on"); if(el && el.scrollIntoView) el.scrollIntoView({block:"nearest",inline:"center"});
+}
+
+/* ---------------- wearers ---------------- */
+var RELS = ["ご本人","娘","息子","妻","夫","母","父","義母","義父","祖母","祖父","孫","姉","妹","兄","弟","その他"];
+
+function addWearer(preset){
+  wearerSeq++;
+  var n = wearerSeq;
+  var d = document.createElement("div");
+  d.className = "w"; d.dataset.w = n;
+  d.innerHTML =
+    '<div class="w-h">' +
+      '<span class="w-n">' + n + '人目</span>' +
+      '<span class="w-t" data-role="title">お召しになる方</span>' +
+      '<button type="button" class="w-x" data-act="del">削除</button>' +
+    '</div>' +
+    '<div class="w-b">' +
+      '<div class="f"><label>お名前<span class="req">必須</span></label>' +
+        '<div class="row">' +
+          '<div><input type="text" data-k="last" placeholder="姓"></div>' +
+          '<div><input type="text" data-k="first" placeholder="名"></div>' +
+        '</div></div>' +
+      '<div class="f"><label>お名前（カナ）<span class="opt">任意</span></label>' +
+        '<div class="row">' +
+          '<div><input type="text" data-k="lastKana" placeholder="セイ"></div>' +
+          '<div><input type="text" data-k="firstKana" placeholder="メイ"></div>' +
+        '</div></div>' +
+      '<div class="f"><label>ご代表者さまとのご関係<span class="req">必須</span></label>' +
+        '<select data-k="rel"><option value="">選択してください</option>' +
+          RELS.map(function(r){ return '<option>'+r+'</option>'; }).join("") +
+        '</select></div>' +
+      '<div class="f"><label>生年月日<span class="req">必須</span></label>' +
+        '<input type="date" data-k="birth" max="2026-12-31">' +
+        '<div class="hint">今後のご機会に合わせたご案内に使わせていただきます</div></div>' +
+      '<div class="f"><label>性別<span class="req">必須</span></label>' +
+        '<select data-k="sex"><option value="">選択してください</option>' +
+          '<option>女性</option><option>男性</option><option>回答しない</option></select></div>' +
+      '<div class="row">' +
+        '<div class="f"><label>身長（cm）<span class="req">必須</span></label>' +
+          '<input type="number" data-k="height" placeholder="160" min="50" max="220" inputmode="numeric">' +
+          '<div class="hint">おおよそで結構です</div></div>' +
+        '<div class="f"><label>足袋・靴のサイズ<span class="req">必須</span></label>' +
+          '<input type="number" data-k="shoe" placeholder="23.5" min="10" max="35" step="0.5" inputmode="decimal"></div>' +
+      '</div>' +
+      '<div class="le" data-role="le"></div>' +
+    '</div>';
+  $("wearers").appendChild(d);
+
+  qs('[data-act=del]', d).addEventListener("click", function(){
+    d.remove(); renumber();
+  });
+  ["rel","birth","sex"].forEach(function(k){
+    qs('[data-k='+k+']', d).addEventListener("change", function(){ updateWearer(d); });
+  });
+  qs('[data-k=last]', d).addEventListener("input", function(){ updateWearer(d); });
+
+  if(preset){
+    Object.keys(preset).forEach(function(k){
+      var el = qs('[data-k='+k+']', d); if(el) el.value = preset[k];
+    });
+    updateWearer(d);
+  }
+  renumber();
+  return d;
+}
+
+function renumber(){
+  qsa("#wearers .w").forEach(function(d,i){
+    qs(".w-n", d).textContent = (i+1) + "人目";
+  });
+  qsa("#wearers .w-x").forEach(function(b){
+    b.style.display = qsa("#wearers .w").length > 1 ? "block" : "none";
+  });
+}
+
+function updateWearer(d){
+  var last = qs('[data-k=last]', d).value.trim();
+  var rel  = qs('[data-k=rel]', d).value;
+  var t = qs('[data-role=title]', d);
+  t.textContent = (last ? last + " さま" : "お召しになる方") + (rel ? "（" + rel + "）" : "");
+
+  var birth = qs('[data-k=birth]', d).value;
+  var sex   = qs('[data-k=sex]', d).value;
+  var box   = qs('[data-role=le]', d);
+  if(!birth){ box.classList.remove("on"); return; }
+  var ev = lifeEvents(birth, sex);
+  if(!ev.length){ box.classList.remove("on"); return; }
+  box.innerHTML = "<b>今後のご案内タイミング（自動算出）</b><ul>" +
+    ev.map(function(e){ return "<li>" + e.label + "　" + e.when + "</li>"; }).join("") + "</ul>";
+  box.classList.add("on");
+}
+
+/* ---------------- ライフイベント算出 ----------------
+   STEP3で取得した「生年月日＋性別」だけから、将来の需要発生時期を計算する。
+   これがライフイベント連鎖リテンションの土台。                          */
+function lifeEvents(birthStr, sex){
+  var b = new Date(birthStr);
+  if(isNaN(b.getTime())) return [];
+  var y = b.getFullYear(), m = b.getMonth()+1, day = b.getDate();
+  var out = [];
+  var NOW = new Date(2026, 7, 13); // テスト基準日：2026-08-13
+
+  // 七五三（満年齢・11月時点）
+  function shichi(age, note){
+    var yy = (m <= 11) ? y + age : y + age + 1;
+    return { y:yy, mm:11, label:"七五三（" + age + "歳" + (note||"") + "）", when:yy + "年11月" };
+  }
+  // 学年基準（4/2〜翌4/1 生まれで1学年）
+  var base = y - ((m < 4 || (m === 4 && day <= 1)) ? 1 : 0);
+
+  var cands = [];
+  if(sex === "男性"){ cands.push(shichi(3), shichi(5)); }
+  else if(sex === "女性"){ cands.push(shichi(3), shichi(7)); }
+  else { cands.push(shichi(3), shichi(5), shichi(7)); }
+
+  cands.push({ y:base+7,  mm:4,  label:"小学校 入学式",       when:(base+7)  + "年4月" });
+  cands.push({ y:base+13, mm:3,  label:"小学校 卒業式（袴）", when:(base+13) + "年3月" });
+  cands.push({ y:base+13, mm:4,  label:"中学校 入学式",       when:(base+13) + "年4月" });
+  cands.push({ y:base+16, mm:4,  label:"高校 入学式",         when:(base+16) + "年4月" });
+  cands.push({ y:base+21, mm:1,  label:"成人式（振袖）",      when:(base+21) + "年1月" });
+
+  cands.forEach(function(c){
+    var dt = new Date(c.y, c.mm-1, 1);
+    if(dt >= NOW) out.push(c);
+  });
+  out.sort(function(a,b2){ return new Date(a.y,a.mm-1,1) - new Date(b2.y,b2.mm-1,1); });
+  return out.slice(0,4);
+}
+
+/* ---------------- 郵便番号 → 住所 ---------------- */
+$("zip").addEventListener("input", function(){
+  var v = this.value.replace(/[^0-9]/g,"");
+  this.value = v;
+  if(v.length !== 7) return;
+  fetch("https://zipcloud.ibsnet.co.jp/api/search?zipcode=" + v)
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      if(j && j.results && j.results[0]){
+        var r = j.results[0];
+        if(!$("addr1").value) $("addr1").value = r.address1 + r.address2 + r.address3;
+        $("addr2").focus();
+      }
+    })
+    .catch(function(){ /* 取得できなければ手入力 */ });
+});
+
+/* ---------------- 時刻の入力補助 ---------------- */
+$("evTime").addEventListener("blur", function(){
+  var v = this.value.replace(/[^0-9]/g,"");
+  if(v.length === 3) this.value = v[0] + ":" + v.slice(1);
+  else if(v.length === 4) this.value = v.slice(0,2) + ":" + v.slice(2);
+});
+
+/* ---------------- validation ---------------- */
+function bad(el, on){ if(el) el.classList.toggle("bad", !!on); }
+function msg(id, on){ var e = $(id); if(e) e.classList.toggle("on", !!on); }
+
+function validate(p){
+  var ok = true;
+  if(p === 1){
+    var n = $("lastName").value.trim() && $("firstName").value.trim();
+    bad($("lastName"), !$("lastName").value.trim()); bad($("firstName"), !$("firstName").value.trim());
+    msg("e_name", !n); if(!n) ok = false;
+
+    var kre = /^[ァ-ヶーー\s]+$/;
+    var k = kre.test($("lastKana").value.trim()) && kre.test($("firstKana").value.trim());
+    bad($("lastKana"), !kre.test($("lastKana").value.trim()));
+    bad($("firstKana"), !kre.test($("firstKana").value.trim()));
+    msg("e_kana", !k); if(!k) ok = false;
+
+    var b = !!$("birth").value; bad($("birth"), !b); msg("e_birth", !b); if(!b) ok = false;
+    var z = $("zip").value.replace(/[^0-9]/g,"").length === 7;
+    bad($("zip"), !z); msg("e_zip", !z); if(!z) ok = false;
+    var a = !!$("addr1").value.trim(); bad($("addr1"), !a); msg("e_addr", !a); if(!a) ok = false;
+
+    var t = /^0\d{9,10}$/.test($("tel").value.replace(/[^0-9]/g,""));
+    bad($("tel"), !t); msg("e_tel", !t); if(!t) ok = false;
+    var e = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test($("mail").value.trim());
+    bad($("mail"), !e); msg("e_mail", !e); if(!e) ok = false;
+  }
+  if(p === 2){
+    var sc = !!qs('input[name=scene]:checked'); msg("e_scene", !sc); if(!sc) ok = false;
+    var d = !!$("evDate").value; bad($("evDate"), !d); msg("e_evDate", !d); if(!d) ok = false;
+    var tm = /^\d{1,2}:\d{2}$/.test($("evTime").value.trim());
+    bad($("evTime"), !tm); msg("e_evTime", !tm); if(!tm) ok = false;
+  }
+  if(p === 3){
+    var cards = qsa("#wearers .w");
+    if(!cards.length){ msg("e_wearer", true); return false; }
+    var allOk = true;
+    cards.forEach(function(d){
+      ["last","first","rel","birth","sex","height","shoe"].forEach(function(k){
+        var el = qs('[data-k='+k+']', d);
+        var empty = !String(el.value).trim();
+        bad(el, empty); if(empty) allOk = false;
+      });
+    });
+    msg("e_wearer", !allOk); if(!allOk) ok = false;
+  }
+  if(p === 5){
+    var a = $("ag1").checked && $("ag2").checked && $("ag3").checked;
+    msg("e_agree", !a); if(!a) ok = false;
+  }
+  return ok;
+}
+
+/* ---------------- collect ---------------- */
+function collect(){
+  var wearers = qsa("#wearers .w").map(function(d, i){
+    var g = function(k){ return qs('[data-k='+k+']', d).value; };
+    return {
+      seq: i+1,
+      name: g("last") + " " + g("first"),
+      kana: (g("lastKana") + " " + g("firstKana")).trim(),
+      relation: g("rel"),
+      birthday: g("birth"),
+      sex: g("sex"),
+      heightCm: Number(g("height")) || null,
+      shoeSize: Number(g("shoe")) || null,
+      measuredAt: new Date().toISOString().slice(0,10),   // ← 測定日を必ず持つ
+      selfReported: true,                                  // ← 自己申告フラグ
+      projectedEvents: lifeEvents(g("birth"), g("sex"))
+        .map(function(e){ return { event:e.label, when:e.when }; })
+    };
+  });
+  var checks = function(name){
+    return qsa('input[name='+name+']:checked').map(function(e){ return e.value; });
+  };
+  var radio = function(name){
+    var e = qs('input[name='+name+']:checked'); return e ? e.value : null;
+  };
+  return {
+    meta: {
+      formVersion: "step3-test-1.0",
+      submittedAt: new Date().toISOString(),
+      channel: liffCtx.mode === "line" ? "LIFF" : "WEB_FALLBACK",
+      lineLinked: liffCtx.mode === "line" && !!liffCtx.userId,
+      lineUserId: liffCtx.userId ? "(サーバー側でIDトークン検証して取得)" : null,
+      note: "テスト版のためデータは送信されていません"
+    },
+    representative: {
+      name: $("lastName").value.trim() + " " + $("firstName").value.trim(),
+      kana: $("lastKana").value.trim() + " " + $("firstKana").value.trim(),
+      birthday: $("birth").value,
+      zip: $("zip").value,
+      address1: $("addr1").value.trim(),
+      address2: $("addr2").value.trim(),
+      tel: $("tel").value.replace(/[^0-9]/g,""),
+      email: $("mail").value.trim()
+    },
+    occasion: {
+      scene: radio("scene"),
+      eventDate: $("evDate").value,
+      startTime: $("evTime").value.trim(),
+      venue: $("venue").value.trim() || null,
+      transit: $("transit").value || null
+    },
+    wearers: wearers,
+    preferences: {
+      colors: checks("color"),
+      taste: radio("taste"),
+      hairMake: radio("hair"),
+      bringOwn: checks("bring"),
+      memo: $("memo").value.trim() || null
+    },
+    consents: {
+      purposeOfUse:  { agreed:$("ag1").checked, at:new Date().toISOString(), textVersion:"2026-08" },
+      futureContact: { agreed:$("ag2").checked, at:new Date().toISOString(), textVersion:"2026-08" },
+      onBehalfOf:    { agreed:$("ag3").checked, at:new Date().toISOString(), textVersion:"2026-08" },
+      snsPublish:    { agreed:$("ag4").checked, at:new Date().toISOString(), textVersion:"2026-08" }
+    },
+    notCollected: ["既往歴","アレルギー","妊娠の記録","クレジットカード情報","身分証画像"]
+  };
+}
+
+/* ---------------- confirm view ---------------- */
+function buildConfirm(){
+  var d = collect();
+  var box = $("confirm"); box.innerHTML = "";
+  function sec(title, rows){
+    var el = document.createElement("div");
+    el.className = "cf";
+    el.innerHTML = '<div class="cf-h">' + title + '</div><dl>' +
+      rows.map(function(r){
+        var v = (r[1] === null || r[1] === undefined || r[1] === "" ||
+                (Array.isArray(r[1]) && !r[1].length)) ? null : r[1];
+        return '<dt>' + r[0] + '</dt><dd' + (v ? '' : ' class="empty"') + '>' +
+               (v ? String(Array.isArray(v) ? v.join("、") : v) : "（未入力）") + '</dd>';
+      }).join("") + '</dl>';
+    box.appendChild(el);
+  }
+  var r = d.representative;
+  sec("ご代表者さま", [
+    ["お名前", r.name + "（" + r.kana + "）"],
+    ["生年月日", r.birthday],
+    ["ご住所", "〒" + r.zip.replace(/^(\d{3})(\d{4})$/, "$1-$2") + " " + r.address1 + " " + r.address2],
+    ["携帯電話", r.tel], ["メール", r.email]
+  ]);
+  var o = d.occasion;
+  sec("ご利用のご予定", [
+    ["シーン", o.scene], ["お式の日", o.eventDate + " " + o.startTime],
+    ["会場", o.venue], ["移動手段", o.transit]
+  ]);
+  d.wearers.forEach(function(w){
+    sec(w.seq + "人目：" + w.name + "（" + w.relation + "）", [
+      ["生年月日・性別", w.birthday + " / " + w.sex],
+      ["身長・足のサイズ", w.heightCm + "cm / " + w.shoeSize],
+      ["今後のご案内予定", w.projectedEvents.length
+          ? w.projectedEvents.map(function(e){ return e.event + " " + e.when; })
+          : "該当のライフイベントはありません"]
+    ]);
+  });
+  var p = d.preferences;
+  sec("ご希望", [
+    ["お色", p.colors], ["テイスト", p.taste],
+    ["ヘアメイク", p.hairMake], ["お持ち込み", p.bringOwn], ["ご要望", p.memo]
+  ]);
+  sec("ご同意", [
+    ["ご利用目的", d.consents.purposeOfUse.agreed ? "同意済み" : "未同意"],
+    ["今後のご案内", d.consents.futureContact.agreed ? "同意済み" : "未同意"],
+    ["ご同行の方について", d.consents.onBehalfOf.agreed ? "確認済み" : "未確認"],
+    ["お写真の掲載", d.consents.snsPublish.agreed ? "許可" : "許可しない"]
+  ]);
+}
+
+/* ---------------- nav ---------------- */
+$("nextBtn").addEventListener("click", function(){
+  if(page === 7){
+    if(liffCtx.mode === "line" && liff.isInClient()) liff.closeWindow();
+    else alert("ブラウザで開いているため、この画面は閉じられません。タブを閉じてください。");
+    return;
+  }
+  if(page >= 1 && page <= 5 && !validate(page)){
+    var f = qs(".pg.on .bad") || qs(".pg.on .emsg.on");
+    if(f && f.scrollIntoView) f.scrollIntoView({block:"center",behavior:"smooth"});
+    return;
+  }
+  if(page === 5){ buildConfirm(); page = 6; render(); return; }
+  if(page === 6){
+    var payload = collect();
+    $("payload").textContent = JSON.stringify(payload, null, 2);
+    console.log("[VASARA STEP3] payload", payload);
+    page = 7; render(); return;
+  }
+  page++;
+  if(page === 3 && !qsa("#wearers .w").length){
+    addWearer({ last:$("lastName").value.trim(), first:$("firstName").value.trim(),
+                lastKana:$("lastKana").value.trim(), firstKana:$("firstKana").value.trim(),
+                rel:"ご本人", birth:$("birth").value });
+  }
+  render();
+});
+$("prevBtn").addEventListener("click", function(){ if(page>0){ page--; render(); } });
+$("addWearer").addEventListener("click", function(){ addWearer(); });
+$("copyBtn").addEventListener("click", function(){
+  var t = $("payload").textContent;
+  if(navigator.clipboard) navigator.clipboard.writeText(t).then(function(){
+    $("copyBtn").textContent = "コピーしました"; setTimeout(function(){ $("copyBtn").textContent="JSONをコピー"; },1600);
+  });
+});
+
+/* ---------------- LIFF init ---------------- */
+function setStatus(cls, text){
+  var s = $("status"); s.className = "st " + cls; $("statusText").textContent = text;
+}
+function dumpDebug(){
+  var lines = [
+    "mode              : " + liffCtx.mode,
+    "liff.isInClient() : " + liffCtx.inClient,
+    "OS                : " + liffCtx.os,
+    "LINE version      : " + liffCtx.version,
+    "isLoggedIn        : " + liffCtx.loggedIn,
+    "displayName       : " + (liffCtx.displayName || "-"),
+    "userId            : " + (liffCtx.userId ? liffCtx.userId.slice(0,6) + "…" + liffCtx.userId.slice(-4) + "（マスク表示）" : "-"),
+    "IDToken           : " + (liffCtx.idTokenObtained ? "取得済み（値は表示しません。サーバー側で検証すること）" : "未取得"),
+    "endpoint          : " + location.href.split("?")[0],
+    "error             : " + (liffCtx.error || "なし")
+  ];
+  $("dbg").textContent = lines.join("\n");
+}
+
+(function init(){
+  var fromQuery = new URLSearchParams(location.search).get("liffId");
+  var id = fromQuery || LIFF_ID;
+
+  if(!id || id === "PASTE_YOUR_LIFF_ID_HERE"){
+    liffCtx.mode = "mock"; liffCtx.error = "LIFF ID が未設定";
+    setStatus("mock", "モックモード：LIFF ID 未設定（画面確認のみ可能）");
+    dumpDebug(); render(); return;
+  }
+  if(typeof liff === "undefined"){
+    liffCtx.mode = "mock"; liffCtx.error = "LIFF SDK を読み込めませんでした";
+    setStatus("err", "LIFF SDK の読み込みに失敗しました");
+    dumpDebug(); render(); return;
+  }
+
+  liff.init({ liffId:id })
+    .then(function(){
+      liffCtx.mode     = "line";
+      liffCtx.inClient = liff.isInClient();
+      liffCtx.os       = liff.getOS();
+      liffCtx.version  = liff.getLineVersion() || "-";
+      liffCtx.loggedIn = liff.isLoggedIn();
+
+      if(!liffCtx.loggedIn){
+        setStatus("mock", "LINEログインが必要です。ログイン画面へ移動します…");
+        dumpDebug();
+        liff.login({ redirectUri: location.href });
+        return;
+      }
+      try{ liffCtx.idTokenObtained = !!liff.getIDToken(); }catch(e){}
+      return liff.getProfile().then(function(p){
+        liffCtx.displayName = p.displayName;
+        liffCtx.userId      = p.userId;
+        setStatus("line", "LINE連携中：" + p.displayName + " さま" +
+                  (liffCtx.inClient ? "（LINEアプリ内）" : "（外部ブラウザ）"));
+        dumpDebug();
+      });
+    })
+    .catch(function(err){
+      liffCtx.mode = "mock";
+      liffCtx.error = (err && (err.message || err.code)) || String(err);
+      setStatus("err", "LIFF初期化に失敗：" + liffCtx.error + "（画面確認のみ可能）");
+      dumpDebug();
+    })
+    .then(function(){ dumpDebug(); render(); });
+
+  render();
+})();
+</script>
+</body>
+</html>
